@@ -19,7 +19,7 @@ func Authentication() gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set("userData", verifyToken)
+		ctx.Set("adminData", verifyToken)
 		ctx.Next()
 	}
 }

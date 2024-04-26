@@ -10,10 +10,11 @@ import (
 
 type Admin struct {
 	ID        	uint   `gorm:"primaryKey"`
-	UUID        string   
+	UUID        string `gorm:"not null"` 
 	Name     		string `gorm:"not null;type:varchar(191)" json:"name" form:"name" valid:"required~Name is required"`
 	Email     	string `gorm:"not null;unique;type:varchar(191)" json:"email" form:"email" valid:"required~Email is required"`
 	Password 		string `gorm:"not null;type:varchar(191)" json:"password" form:"password" valid:"required~Password is required"`
+	Product   	[]Product  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"products"`
 	CreatedAt 	time.Time 
 	UpdatedAt 	time.Time 
 }

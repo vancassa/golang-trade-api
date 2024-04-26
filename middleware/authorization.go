@@ -14,8 +14,8 @@ func ProductAuthorization() gin.HandlerFunc {
 		db := database.GetDB()
 		productUUID := ctx.Param("productUUID")
 
-		userData := ctx.MustGet("userData").(jwt5.MapClaims)
-		adminID := uint(userData["id"].(float64))
+		adminData := ctx.MustGet("adminData").(jwt5.MapClaims)
+		adminID := uint(adminData["id"].(float64))
 
 		var getProduct models.Product
 		err := db.Select("admin_id").Where("uuid = ?", productUUID).First(&getProduct).Error
