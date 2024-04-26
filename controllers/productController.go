@@ -159,3 +159,42 @@ func GetProductByUUID(ctx *gin.Context) {
 		"data": Product,
 	})
 }
+
+func DeleteProduct(ctx *gin.Context) {
+	db := database.GetDB()
+	productUUID := ctx.Param("productUUID")
+
+	var Product models.Product
+	var Variant models.Variant
+
+	// Get product
+	if err := db.Debug().Where("uuid = ?", productUUID).First(&Product).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Not Found",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// Remove variant
+	if err := db.Debug().Where("product_id = ?", Product.ID).Delete(&Variant).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Bad request",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// Remove product
+	if 	err := db.Debug().Where("uuid = ?", productUUID).Delete(&Product).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error":   "Bad request",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Product deleted successfully",
+	})
+}
