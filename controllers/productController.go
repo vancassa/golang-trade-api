@@ -139,3 +139,23 @@ func GetAllProducts(ctx *gin.Context) {
 		"data": results,
 	})
 }
+
+func GetProductByUUID(ctx *gin.Context) {
+	db := database.GetDB()
+	productUUID := ctx.Param("productUUID")
+
+	var Product models.Product
+
+	err := db.Debug().Preload("Admin").Where("uuid = ?", productUUID).First(&Product).Error
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": Product,
+	})
+}
