@@ -126,7 +126,9 @@ func GetAllProducts(ctx *gin.Context) {
 
 	results := []models.Product{}
 
-	err := db.Debug().Find(&results).Error
+	search := ctx.Query("search") + "%"
+
+	err := db.Debug().Where("name LIKE ?", search).Find(&results).Error
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Bad request",

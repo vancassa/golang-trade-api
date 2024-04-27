@@ -108,8 +108,9 @@ func GetAllVariants(ctx *gin.Context) {
 	db := database.GetDB()
 
 	results := []models.Variant{}
+	search := ctx.Query("search") + "%"
 
-	err := db.Debug().Preload("Product").Find(&results).Error
+	err := db.Debug().Preload("Product").Where("variant_name LIKE ?", search).Find(&results).Error
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Bad request",
