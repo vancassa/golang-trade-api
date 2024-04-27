@@ -144,3 +144,23 @@ func GetVariantByUUID(ctx *gin.Context) {
 		"data": Variant,
 	})
 }
+
+func DeleteVariant(ctx *gin.Context) {
+	db := database.GetDB()
+	variantUUID := ctx.Param("variantUUID")
+
+	var Variant models.Variant
+
+	// Remove variant
+	if err := db.Debug().Where("uuid = ?", variantUUID).Delete(&Variant).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Bad request",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Product deleted successfully",
+	})
+}
