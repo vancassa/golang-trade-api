@@ -10,22 +10,45 @@ import (
 	"github.com/google/uuid"
 )
 
+type VariantRequest struct {
+	VariantName string `form:"variant_name" json:"variant_name" binding:"required"`
+	Quantity    uint   `form:"quantity" json:"quantity" binding:"required"`
+	ProductID   string `form:"product_id" json:"product_id"`
+}
+
 func CreateVariant(ctx *gin.Context) {
 	db := database.GetDB()
 
+
+	var Variant models.Variant;
+	var variantReq VariantRequest;
+	var Product models.Product;
+
 	contentType := helpers.GetContentType(ctx)
 
-	Variant := models.Variant{}
-
 	if contentType == appJSON {
-		ctx.ShouldBindJSON(&Variant)
+		ctx.ShouldBindJSON(&variantReq)
 	} else {
-		ctx.ShouldBind(&Variant)
+		ctx.ShouldBind(&variantReq)
+	}
+
+	// Get product by UUID
+	if err := db.Where("uuid = ?", variantReq.ProductID).First(&Product).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Bad request",
+			"message": err.Error(),
+		})
+		return
 	}
 
 	newUUID := uuid.New()
 	Variant.UUID = newUUID.String()
+	Variant.VariantName = variantReq.VariantName
+	Variant.Quantity = variantReq.Quantity
+	Variant.ProductId = Product.ID
+	Variant.Product = &Product
 
+	// Create variant
 	err := db.Debug().Create(&Variant).Error
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
