@@ -137,6 +137,19 @@ func GetAllProducts(ctx *gin.Context) {
 		return
 	}
 
+	// Get all variants for each product
+	for i, product := range results {
+		var variants []models.Variant
+		if err := db.Debug().Where("product_id = ?", product.ID).Find(&variants).Error; err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error":   "Bad request",
+				"message": err.Error(),
+			})
+			return
+		}
+		results[i].Variant = variants
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": results,
 	})
@@ -147,6 +160,7 @@ func GetProductByUUID(ctx *gin.Context) {
 	productUUID := ctx.Param("productUUID")
 
 	var Product models.Product
+	var Variants []models.Variant;
 
 	err := db.Debug().Where("uuid = ?", productUUID).First(&Product).Error
 	if err != nil {
@@ -156,6 +170,16 @@ func GetProductByUUID(ctx *gin.Context) {
 		})
 		return
 	}
+
+	if err:= db.Debug().Where("product_id = ?", Product.ID).Find(&Variants).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	Product.Variant = Variants
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": Product,

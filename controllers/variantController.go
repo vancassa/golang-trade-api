@@ -90,7 +90,7 @@ func UpdateVariant(ctx *gin.Context) {
 	Variant.VariantName = variantReq.VariantName
 	Variant.Quantity = variantReq.Quantity
 
-	if err := db.Save(Variant).Error; err != nil {
+	if err := db.Save(&Variant).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Bad request",
 			"message": err.Error(),
