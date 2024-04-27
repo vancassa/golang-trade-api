@@ -7,7 +7,7 @@ import (
 
 
 func main() {
-	var PORT = ":9090"
+	var PORT = ":3000"
 
 	database.StartDB()
 
