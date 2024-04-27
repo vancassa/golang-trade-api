@@ -30,7 +30,7 @@ func StartApp() *gin.Engine {
 	variantRouter := router.Group("/products/variants")
 	{
 		variantRouter.GET("/", controllers.GetAllVariants)
-		// productRouter.GET("/:variantUUID", controllers.GetVariantById)
+		variantRouter.GET("/:variantUUID", controllers.GetVariantByUUID)
 
 		variantRouter.Use(middleware.Authentication())
 		variantRouter.POST("/", controllers.CreateVariant)

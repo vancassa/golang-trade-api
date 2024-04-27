@@ -123,3 +123,24 @@ func GetAllVariants(ctx *gin.Context) {
 		"data": results,
 	})
 }
+
+
+func GetVariantByUUID(ctx *gin.Context) {
+	db := database.GetDB()
+	variantUUID := ctx.Param("variantUUID")
+
+	var Variant models.Variant
+
+	err := db.Debug().Preload("Product").Where("uuid = ?", variantUUID).First(&Variant).Error
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": Variant,
+	})
+}
