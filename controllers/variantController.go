@@ -110,7 +110,7 @@ func GetAllVariants(ctx *gin.Context) {
 
 	results := []models.Variant{}
 
-	err := db.Debug().Preload("Admin").Find(&results).Error
+	err := db.Debug().Preload("Product").Find(&results).Error
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Bad request",
