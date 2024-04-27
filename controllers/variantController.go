@@ -66,20 +66,20 @@ func CreateVariant(ctx *gin.Context) {
 func UpdateVariant(ctx *gin.Context) {
 	db := database.GetDB()
 
-	contentType := helpers.GetContentType(ctx)
-	Variant := models.Variant{}
+	var Variant models.Variant
+	var variantReq VariantRequest
 
 	variantUUID := ctx.Param("variantUUID")
 
+	contentType := helpers.GetContentType(ctx)
 	if contentType == appJSON {
-		ctx.ShouldBindJSON(&Variant)
+		ctx.ShouldBindJSON(&variantReq)
 	} else {
-		ctx.ShouldBind(&Variant)
+		ctx.ShouldBind(&variantReq)
 	}
 
 	// Retrieve existing variant from the database
-	var getVariant models.Variant
-	if err := db.Model(&getVariant).Where("uuid = ?", variantUUID).First(&getVariant).Error; err != nil {
+	if err := db.Model(&Variant).Where("uuid = ?", variantUUID).First(&Variant).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Bad request",
 			"message": err.Error(),
@@ -88,16 +88,10 @@ func UpdateVariant(ctx *gin.Context) {
 	}
 
 	// Update the Variant struct with retrieved data
-	Variant.ID = uint(getVariant.ID)
-	Variant.ProductId = getVariant.ProductId
+	Variant.VariantName = variantReq.VariantName
+	Variant.Quantity = variantReq.Quantity
 
-	// Update the variant record in the database
-	updateData := models.Variant{
-		VariantName:  Variant.VariantName,
-		Quantity: Variant.Quantity,
-	}
-
-	if err := db.Model(&Variant).Where("uuid = ?", variantUUID).Updates(updateData).Error; err != nil {
+	if err := db.Save(Variant).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Bad request",
 			"message": err.Error(),
@@ -105,19 +99,9 @@ func UpdateVariant(ctx *gin.Context) {
 		return
 	}
 
-	// Retrieve the updated variant data from the database
-	var updatedVariant models.Variant
-	if err := db.Where("uuid = ?", variantUUID).Preload("Admin").First(&updatedVariant).Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Could not retrieve updated variant data",
-			"message": err.Error(),
-		})
-		return
-	}
-
 	// Respond with the updated variant data
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": updatedVariant,
+		"data": Variant,
 	})
 }
 

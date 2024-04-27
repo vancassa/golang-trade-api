@@ -45,11 +45,12 @@ func VariantAuthorization() gin.HandlerFunc {
 		db := database.GetDB()
 		variantUUID := ctx.Param("variantUUID")
 
-		userData := ctx.MustGet("userData").(jwt5.MapClaims)
-		adminID := uint(userData["id"].(float64))
+		adminData := ctx.MustGet("adminData").(jwt5.MapClaims)
+		adminID := uint(adminData["id"].(float64))
 
-		var getVariant models.Variant
-		err := db.Select("product_id").Where("uuid = ?", variantUUID).First(&getVariant).Error
+		// Get variant
+		var Variant models.Variant
+		err := db.Where("uuid = ?", variantUUID).First(&Variant).Error
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 				"error":   err.Error(),
@@ -58,8 +59,9 @@ func VariantAuthorization() gin.HandlerFunc {
 			return
 		}
 
-		var getProduct models.Product
-		err = db.Select("admin_id").Where("uuid = ?", getVariant.ProductId).First(&getProduct).Error
+		// Get product
+		var Product models.Product
+		err = db.Where("id = ?", Variant.ProductId).First(&Product).Error
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 				"error":   err.Error(),
@@ -68,7 +70,7 @@ func VariantAuthorization() gin.HandlerFunc {
 			return
 		}
 
-		if getProduct.AdminId != adminID {
+		if Product.AdminId != adminID {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
 				"message": "You are not allowed to access this data",
