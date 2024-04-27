@@ -19,7 +19,6 @@ type VariantRequest struct {
 func CreateVariant(ctx *gin.Context) {
 	db := database.GetDB()
 
-
 	var Variant models.Variant;
 	var variantReq VariantRequest;
 	var Product models.Product;

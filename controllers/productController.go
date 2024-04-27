@@ -126,7 +126,7 @@ func GetAllProducts(ctx *gin.Context) {
 
 	results := []models.Product{}
 
-	err := db.Debug().Preload("Admin").Find(&results).Error
+	err := db.Debug().Find(&results).Error
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Bad request",
@@ -146,7 +146,7 @@ func GetProductByUUID(ctx *gin.Context) {
 
 	var Product models.Product
 
-	err := db.Debug().Preload("Admin").Where("uuid = ?", productUUID).First(&Product).Error
+	err := db.Debug().Where("uuid = ?", productUUID).First(&Product).Error
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error":   "Not Found",
